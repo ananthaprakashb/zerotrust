@@ -28,6 +28,7 @@ const App = () => {
       <div className="mb-8 text-center">
         <h2 className="text-2xl font-bold text-white mb-2">The Brain of Zero Trust</h2>
         <p className="text-slate-400 text-sm">Conceptualizing PDP and PEP Interaction (NIST 800-207)</p>
+        <a href="interactive-architecture.html">View Interactive Version</a>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 w-full max-w-5xl items-center relative">
