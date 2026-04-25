@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beyond the Perimeter: Zero Trust Architecture</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FAFAF9;
+            color: #292524;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+
+        .node-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .node-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .node-active {
+            ring: 2px;
+            ring-offset: 2px;
+            border-color: #0369a1;
+            background-color: #f0f9ff;
+        }
+
+        .pulse-line {
+            background: linear-gradient(90deg, #d6d3d1 0%, #3b82f6 50%, #d6d3d1 100%);
+            background-size: 200% 100%;
+            animation: pulse-flow 2s infinite linear;
+        }
+
+        @keyframes pulse-flow {
+            0% { background-position: 100% 0; }
+            100% { background-position: -100% 0; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Chosen Palette: Warm Neutrals (Stone/Off-white) with tech-focused accents (Sky Blue for PDP, Emerald for PEP, Amber for AI) -->
+    
+    <!-- Application Structure Plan: The SPA uses a split-panel dashboard layout. The left pane features a custom HTML/CSS interactive diagram of the NIST 800-207 architecture. This structure was chosen because Zero Trust is fundamentally an architectural concept; allowing users to click physical components (PDP, PEP, Signals) to reveal the textual insights and data visualizations in the right pane makes the abstract text tangible and exploratory. -->
+    
+    <!-- Visualization & Content Choices: 
+         1. Contextual Signals -> Goal: Inform -> Viz: Radar Chart (Chart.js) -> Interaction: "Simulate Behavior" button randomizes data to show 'Dynamic Trust Scores' in action. Justification: Shows how multiple signals combine into a single trust metric.
+         2. PEP (Gatekeeper) -> Goal: Compare -> Viz: Bar Chart (Chart.js) -> Interaction: Hover tooltips. Justification: Visually demonstrates the latency vs. UX challenge mentioned in the text (Traditional vs SASE).
+         3. Diagram -> Goal: Organize/Relationships -> Viz: HTML/Tailwind Nodes -> Interaction: Clickable nodes driving state. Justification: Replaces SVG with compliant, responsive web elements to show the data path and control plane. -->
+    
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <header class="bg-stone-900 text-stone-50 py-8 px-6 md:px-12 border-b-4 border-sky-600">
+        <div class="max-w-7xl mx-auto">
+            <p class="text-sky-400 font-semibold tracking-wider text-sm mb-2 uppercase">Interactive Analysis Series</p>
+            <h1 class="text-3xl md:text-5xl font-bold mb-4">Beyond the Perimeter</h1>
+            <h2 class="text-xl md:text-2xl text-stone-400 font-light max-w-3xl">Deciphering the Brain of Zero Trust Architecture</h2>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl mx-auto w-full p-6 md:p-12 grid grid-cols-1 lg:grid-cols-12 gap-12">
+        
+        <section class="lg:col-span-5 flex flex-col items-center justify-start bg-white p-8 rounded-2xl shadow-sm border border-stone-200 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-sky-400 to-emerald-400"></div>
+            
+            <h3 class="text-lg font-bold text-stone-800 mb-2 text-center w-full">Interactive ZTA Map</h3>
+            <p class="text-sm text-stone-500 mb-8 text-center w-full">Click a component to explore its role and challenges.</p>
+
+            <div class="flex flex-col items-center w-full mt-4">
+                
+                <div id="node-signals" class="node-card w-64 bg-stone-50 border-2 border-stone-300 rounded-xl p-4 text-center z-10" onclick="app.navigate('signals')">
+                    <div class="text-2xl mb-2">📡</div>
+                    <div class="font-bold text-stone-700 text-sm">Contextual Signals</div>
+                    <div class="text-xs text-stone-500 mt-1">Integrity, Posture, Context</div>
+                </div>
+
+                <div class="w-1 h-12 bg-stone-300 my-1 pulse-line"></div>
+
+                <div id="node-pdp" class="node-card w-64 bg-sky-50 border-2 border-sky-300 rounded-xl p-4 text-center z-10" onclick="app.navigate('pdp')">
+                    <div class="text-2xl mb-2">🧠</div>
+                    <div class="font-bold text-sky-800 text-sm">Policy Decision Point (PDP)</div>
+                    <div class="text-xs text-sky-600 mt-1">The Strategic Brain</div>
+                </div>
+
+                <div class="w-1 h-12 bg-stone-300 my-1 pulse-line"></div>
+
+                <div class="flex items-center justify-center w-full relative">
+                    <div class="w-24 bg-stone-100 border border-stone-300 rounded p-3 text-center z-10 shadow-sm">
+                        <div class="text-xl">💻</div>
+                        <div class="text-xs font-bold mt-1 text-stone-600">User</div>
+                    </div>
+                    
+                    <div class="flex-grow h-1 bg-stone-300 mx-2"></div>
+                    
+                    <div id="node-pep" class="node-card w-40 bg-emerald-50 border-2 border-emerald-300 rounded-xl p-4 text-center z-10" onclick="app.navigate('pep')">
+                        <div class="text-2xl mb-2">🚦</div>
+                        <div class="font-bold text-emerald-800 text-sm">PEP</div>
+                        <div class="text-xs text-emerald-600 mt-1">Tactical Gatekeeper</div>
+                    </div>
+                    
+                    <div class="flex-grow h-1 bg-stone-300 mx-2 pulse-line"></div>
+                    
+                    <div class="w-24 bg-stone-800 border border-stone-900 rounded p-3 text-center z-10 shadow-sm text-stone-100">
+                        <div class="text-xl">🗄️</div>
+                        <div class="text-xs font-bold mt-1">Resource</div>
+                    </div>
+                </div>
+
+                <div class="mt-16 w-full border-t border-dashed border-stone-300 pt-8 flex justify-center">
+                    <div id="node-ai" class="node-card w-64 bg-amber-50 border-2 border-amber-300 rounded-xl p-4 text-center z-10" onclick="app.navigate('ai')">
+                        <div class="text-2xl mb-2">🤖</div>
+                        <div class="font-bold text-amber-800 text-sm">The Research Frontier</div>
+                        <div class="text-xs text-amber-600 mt-1">AI-Driven Trust Algorithms</div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section class="lg:col-span-7 bg-white p-8 rounded-2xl shadow-sm border border-stone-200 min-h-[600px] flex flex-col">
+            
+            <div id="content-overview" class="content-panel flex-grow flex flex-col justify-center items-start">
+                <div class="inline-block px-3 py-1 bg-stone-200 text-stone-700 text-xs font-bold rounded-full mb-4">INTRODUCTION</div>
+                <h3 class="text-3xl font-bold text-stone-800 mb-6">The Moat and Castle has Collapsed.</h3>
+                <p class="text-lg text-stone-600 mb-6 leading-relaxed">
+                    As we transition into a cloud-first, AI-driven security landscape in 2026, the traditional perimeter defense is obsolete. While many organizations claim to "do Zero Trust," few have mastered the core components defined by <strong class="text-stone-900">NIST 800-207</strong>.
+                </p>
+                <p class="text-lg text-stone-600 mb-8 leading-relaxed">
+                    Explore the architecture using the interactive map to analyze the most critical and often misunderstood components of ZTA.
+                </p>
+                <button onclick="app.navigate('pdp')" class="bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center">
+                    Start Exploration <span class="ml-2">→</span>
+                </button>
+            </div>
+
+            <div id="content-signals" class="content-panel hidden flex-grow flex flex-col">
+                <div class="inline-block px-3 py-1 bg-stone-200 text-stone-700 text-xs font-bold rounded-full mb-4 w-max">DATA INPUTS</div>
+                <h3 class="text-2xl font-bold text-stone-800 mb-4">Contextual Signals & Trust Algorithms</h3>
+                <p class="text-stone-600 mb-6">
+                    The PDP relies on a complex trust algorithm rather than simple passwords. It evaluates multiple dynamic vectors simultaneously. The technical gap today is moving from static checks to <strong>Dynamic Trust Scores</strong> where access fluctuates in real-time.
+                </p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                    <div class="bg-stone-50 p-4 rounded-lg border border-stone-200">
+                        <div class="font-bold text-stone-800 text-sm mb-1">Subject Integrity</div>
+                        <div class="text-xs text-stone-600">Is the user's biometric signature consistent?</div>
+                    </div>
+                    <div class="bg-stone-50 p-4 rounded-lg border border-stone-200">
+                        <div class="font-bold text-stone-800 text-sm mb-1">Device Posture</div>
+                        <div class="text-xs text-stone-600">Is the OS patched? Is EDR active?</div>
+                    </div>
+                    <div class="bg-stone-50 p-4 rounded-lg border border-stone-200">
+                        <div class="font-bold text-stone-800 text-sm mb-1">Contextual Signals</div>
+                        <div class="text-xs text-stone-600">Unusual IP? Atypical login time?</div>
+                    </div>
+                </div>
+
+                <div class="bg-stone-50 rounded-xl p-4 border border-stone-200 flex-grow flex flex-col items-center">
+                    <div class="w-full flex justify-between items-center mb-2">
+                        <span class="text-sm font-bold text-stone-700">Dynamic Trust Score Simulator</span>
+                        <button onclick="app.simulateTrust()" class="text-xs bg-sky-100 hover:bg-sky-200 text-sky-700 font-bold py-1 px-3 rounded border border-sky-200 transition-colors">
+                            Simulate Behavior Change
+                        </button>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="trustChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div id="content-pdp" class="content-panel hidden flex-grow flex flex-col">
+                <div class="inline-block px-3 py-1 bg-sky-100 text-sky-800 text-xs font-bold rounded-full mb-4 w-max">CONTROL PLANE</div>
+                <h3 class="text-2xl font-bold text-stone-800 mb-4">The Policy Decision Point (PDP)</h3>
+                <p class="text-stone-600 mb-6 text-lg leading-relaxed border-l-4 border-sky-400 pl-4">
+                    The PDP is the "intelligence" of your security stack. 
+                </p>
+                <p class="text-stone-600 mb-6">
+                    It acts as the strategic brain, consuming the contextual signals (integrity, posture, context) and computing a final decision. Most current PDPs are too static, granting persistent access after initial verification. True ZTA maturity requires the PDP to continuously re-evaluate the session.
+                </p>
+                <div class="bg-sky-50 rounded-xl p-6 border border-sky-100 mt-auto">
+                    <h4 class="font-bold text-sky-900 mb-2">The Architecture Gap</h4>
+                    <p class="text-sm text-sky-800">Implementing a centralized Policy Engine often faces bottlenecks. Legacy system integration and the sheer complexity of defining granular, dynamic policies across hybrid environments remain the primary hurdles for security architects.</p>
+                </div>
+            </div>
+
+            <div id="content-pep" class="content-panel hidden flex-grow flex flex-col">
+                <div class="inline-block px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-full mb-4 w-max">DATA PLANE</div>
+                <h3 class="text-2xl font-bold text-stone-800 mb-4">The Policy Enforcement Point (PEP)</h3>
+                <p class="text-stone-600 mb-6 text-lg leading-relaxed border-l-4 border-emerald-400 pl-4">
+                    The PEP is where the "rubber meets the road."
+                </p>
+                <p class="text-stone-600 mb-6">
+                    It sits directly in the data path, responsible for enabling, monitoring, and eventually terminating connections based strictly on the commands from the PDP.
+                </p>
+                
+                <h4 class="font-bold text-stone-800 mb-2 mt-4">Key Challenge: Latency vs. UX</h4>
+                <p class="text-sm text-stone-600 mb-4">
+                    How do we enforce a strict PEP without degrading the user experience (UX)? Traditional architectures route all traffic through a central choke point, causing massive latency. This is where SASE (Secure Access Service Edge) and micro-segmentation become vital, moving the PEP closer to the user and the resource.
+                </p>
+
+                <div class="bg-stone-50 rounded-xl p-4 border border-stone-200 mt-auto">
+                    <div class="chart-container h-64">
+                        <canvas id="latencyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div id="content-ai" class="content-panel hidden flex-grow flex flex-col">
+                <div class="inline-block px-3 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full mb-4 w-max">FUTURE RESEARCH</div>
+                <h3 class="text-2xl font-bold text-stone-800 mb-4">Autonomous Zero Trust</h3>
+                <p class="text-stone-600 mb-6 text-lg leading-relaxed border-l-4 border-amber-400 pl-4">
+                    Exploring Machine Learning to automate the PDP.
+                </p>
+                <p class="text-stone-600 mb-6">
+                    As we prepare for the next evolution of cybersecurity, the sheer volume of telemetry data will exceed human or static-rule processing capabilities. If an AI agent (a Non-Human Identity) requests access to a sensitive database, how does the PDP verify <em>intent</em> rather than just credentials?
+                </p>
+                
+                <div class="bg-stone-900 text-stone-100 rounded-xl p-8 mt-auto shadow-lg">
+                    <h4 class="text-xl font-bold text-amber-400 mb-4 font-sans">Community Discussion</h4>
+                    <p class="text-stone-300 mb-6 font-light">I’d love to hear from my peers: In your current infrastructure, what is the biggest bottleneck you face when trying to implement a centralized Policy Engine?</p>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <div class="flex-1 bg-stone-800 p-4 rounded border border-stone-700 hover:border-amber-500 cursor-pointer transition-colors">
+                            <span class="text-sm font-bold text-stone-200">A. Legacy Integration</span>
+                        </div>
+                        <div class="flex-1 bg-stone-800 p-4 rounded border border-stone-700 hover:border-amber-500 cursor-pointer transition-colors">
+                            <span class="text-sm font-bold text-stone-200">B. Granular Policies</span>
+                        </div>
+                    </div>
+                    <div class="mt-6 flex gap-2 flex-wrap">
+                        <span class="text-xs text-stone-500 bg-stone-800 px-2 py-1 rounded">#CyberSecurity</span>
+                        <span class="text-xs text-stone-500 bg-stone-800 px-2 py-1 rounded">#ZeroTrust</span>
+                        <span class="text-xs text-stone-500 bg-stone-800 px-2 py-1 rounded">#NIST800207</span>
+                        <span class="text-xs text-stone-500 bg-stone-800 px-2 py-1 rounded">#EB1A</span>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <footer class="bg-stone-100 border-t border-stone-200 py-6 text-center text-stone-500 text-sm mt-auto">
+        <p>Interactive Architecture Analysis based on NIST 800-207 Principles.</p>
+    </footer>
+
+    <script>
+        const app = {
+            currentState: 'overview',
+            charts: {},
+            
+            init() {
+                this.initCharts();
+            },
+
+            navigate(viewId) {
+                document.querySelectorAll('.content-panel').forEach(panel => {
+                    panel.classList.add('hidden');
+                });
+                
+                const targetPanel = document.getElementById(`content-${viewId}`);
+                if(targetPanel) {
+                    targetPanel.classList.remove('hidden');
+                }
+
+                document.querySelectorAll('.node-card').forEach(node => {
+                    node.classList.remove('border-sky-500', 'bg-sky-50', 'shadow-md', 'scale-105');
+                    
+                    if(node.id === 'node-signals') node.className = 'node-card w-64 bg-stone-50 border-2 border-stone-300 rounded-xl p-4 text-center z-10';
+                    if(node.id === 'node-pdp') node.className = 'node-card w-64 bg-sky-50 border-2 border-sky-300 rounded-xl p-4 text-center z-10';
+                    if(node.id === 'node-pep') node.className = 'node-card w-40 bg-emerald-50 border-2 border-emerald-300 rounded-xl p-4 text-center z-10';
+                    if(node.id === 'node-ai') node.className = 'node-card w-64 bg-amber-50 border-2 border-amber-300 rounded-xl p-4 text-center z-10';
+                });
+
+                const activeNode = document.getElementById(`node-${viewId}`);
+                if(activeNode) {
+                    if(viewId === 'signals') activeNode.classList.add('border-stone-500', 'shadow-md', 'scale-105');
+                    if(viewId === 'pdp') activeNode.classList.add('border-sky-600', 'bg-sky-100', 'shadow-md', 'scale-105');
+                    if(viewId === 'pep') activeNode.classList.add('border-emerald-600', 'bg-emerald-100', 'shadow-md', 'scale-105');
+                    if(viewId === 'ai') activeNode.classList.add('border-amber-500', 'bg-amber-100', 'shadow-md', 'scale-105');
+                }
+
+                this.currentState = viewId;
+                
+                if(viewId === 'signals') {
+                    this.simulateTrust(true);
+                }
+            },
+
+            initCharts() {
+                Chart.defaults.font.family = "'Inter', sans-serif";
+                Chart.defaults.color = '#57534e';
+
+                const ctxTrust = document.getElementById('trustChart').getContext('2d');
+                this.charts.trust = new Chart(ctxTrust, {
+                    type: 'radar',
+                    data: {
+                        labels: ['Subject Integrity', 'Device Posture', 'Location Context', 'Time Context', 'Behavioral Anomaly'],
+                        datasets: [{
+                            label: 'Trust Score Vector',
+                            data: [95, 90, 85, 95, 80],
+                            backgroundColor: 'rgba(14, 165, 233, 0.2)',
+                            borderColor: 'rgba(14, 165, 233, 1)',
+                            pointBackgroundColor: 'rgba(14, 165, 233, 1)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgba(14, 165, 233, 1)',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            r: {
+                                angleLines: { color: 'rgba(0, 0, 0, 0.1)' },
+                                grid: { color: 'rgba(0, 0, 0, 0.1)' },
+                                pointLabels: { font: { size: 11, weight: 'bold' } },
+                                suggestedMin: 0,
+                                suggestedMax: 100,
+                                ticks: { display: false }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return ` Confidence: ${context.raw}%`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                const ctxLatency = document.getElementById('latencyChart').getContext('2d');
+                this.charts.latency = new Chart(ctxLatency, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Traditional VPN Hairpin', 'Micro-Segmented PEP', 'SASE Edge PEP'],
+                        datasets: [
+                            {
+                                label: 'Latency (ms)',
+                                data: [150, 45, 20],
+                                backgroundColor: ['#f87171', '#34d399', '#10b981'],
+                                borderRadius: 4
+                            },
+                            {
+                                label: 'UX Score (Out of 100)',
+                                data: [40, 85, 95],
+                                type: 'line',
+                                borderColor: '#0ea5e9',
+                                backgroundColor: '#0ea5e9',
+                                borderWidth: 3,
+                                pointRadius: 5,
+                                yAxisID: 'y1'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: { mode: 'index', intersect: false },
+                        scales: {
+                            y: {
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                title: { display: true, text: 'Latency (ms)' },
+                                suggestedMax: 200
+                            },
+                            y1: {
+                                type: 'linear',
+                                display: true,
+                                position: 'right',
+                                title: { display: true, text: 'UX Score' },
+                                grid: { drawOnChartArea: false },
+                                suggestedMin: 0,
+                                suggestedMax: 100
+                            }
+                        },
+                        plugins: {
+                            legend: { position: 'top' }
+                        }
+                    }
+                });
+            },
+
+            simulateTrust(initial = false) {
+                if(!this.charts.trust) return;
+                
+                const newData = initial 
+                    ? [95, 90, 85, 95, 80] 
+                    : [
+                        Math.floor(Math.random() * (100 - 60) + 60), 
+                        Math.floor(Math.random() * (100 - 40) + 40), 
+                        Math.floor(Math.random() * (100 - 20) + 20), 
+                        Math.floor(Math.random() * (100 - 50) + 50), 
+                        Math.floor(Math.random() * (100 - 30) + 30)  
+                      ];
+
+                this.charts.trust.data.datasets[0].data = newData;
+                
+                const averageTrust = newData.reduce((a, b) => a + b, 0) / newData.length;
+                let color = 'rgba(14, 165, 233, 1)'; 
+                let bgColor = 'rgba(14, 165, 233, 0.2)';
+                
+                if (averageTrust < 60) {
+                    color = 'rgba(239, 68, 68, 1)'; 
+                    bgColor = 'rgba(239, 68, 68, 0.2)';
+                } else if (averageTrust < 80) {
+                    color = 'rgba(245, 158, 11, 1)'; 
+                    bgColor = 'rgba(245, 158, 11, 0.2)';
+                }
+
+                this.charts.trust.data.datasets[0].borderColor = color;
+                this.charts.trust.data.datasets[0].pointBackgroundColor = color;
+                this.charts.trust.data.datasets[0].pointHoverBorderColor = color;
+                this.charts.trust.data.datasets[0].backgroundColor = bgColor;
+
+                this.charts.trust.update();
+            }
+        };
+
+        window.onload = () => app.init();
+    </script>
+</body>
+</html>
